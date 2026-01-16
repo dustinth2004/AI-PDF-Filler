@@ -11,7 +11,9 @@ import requests
 from datetime import datetime
 
 # tesseract configuration
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Adjust this path as needed
+# Assumes tesseract is in your PATH. If not, set the path here or via environment variable.
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
 #file reading function
 def read_context_file(context_file):
     with open(context_file, 'r', encoding='utf-8') as file:
@@ -118,7 +120,8 @@ def put_text_in_box(img, text, x, y, w, h, color=(0, 0, 0), font_size=38, thickn
     return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 #ollama response function
 def get_ollama_response(prompt, context, model="llama3.2"):
-    url = "http://localhost:11434/api/generate"
+    ollama_host = os.environ.get('OLLAMA_HOST', 'localhost')
+    url = f"http://{ollama_host}:11434/api/generate"
     
     full_prompt = f"{context}\n\nBased on the above information, {prompt}"
     
@@ -128,11 +131,15 @@ def get_ollama_response(prompt, context, model="llama3.2"):
         "stream": False
     }
     
-    response = requests.post(url, json=data)
-    if response.status_code == 200:
-        return json.loads(response.text)['response']
-    else:
-        return f"Error: {response.status_code}, {response.text}"
+    try:
+        response = requests.post(url, json=data)
+        if response.status_code == 200:
+            return json.loads(response.text)['response']
+        else:
+            return f"Error: {response.status_code}, {response.text}"
+    except requests.exceptions.RequestException as e:
+        return f"Error connecting to Ollama: {str(e)}"
+
 #date addition to context function
 def add_current_date_to_context(context):
     current_date = datetime.now().strftime("%d/%m/%Y")
@@ -271,18 +278,17 @@ def process_pdf(input_pdf, output_dir, context_file):
 
     print("PDF processing complete.")
 
-# Get the current script's directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
+if __name__ == "__main__":
+    # Get the current script's directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Navigate to the project root directory
-project_dir = os.path.dirname(script_dir)
+    # Navigate to the project root directory
+    project_dir = os.path.dirname(script_dir)
 
-# Construct the paths
-input_pdf = os.path.join(project_dir, 'data', 'Dummy_Questionnaire.pdf')
-output_dir = os.path.join(project_dir, 'output')
-context_file = os.path.join(project_dir, 'data', 'Dummy_data.txt')
+    # Construct the paths
+    input_pdf = os.path.join(project_dir, 'data', 'Dummy_Questionnaire.pdf')
+    output_dir = os.path.join(project_dir, 'output')
+    context_file = os.path.join(project_dir, 'data', 'Dummy_data.txt')
 
-# Process the PDF
-process_pdf(input_pdf, output_dir, context_file)
-
-
+    # Process the PDF
+    process_pdf(input_pdf, output_dir, context_file)

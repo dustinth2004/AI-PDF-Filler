@@ -2,7 +2,7 @@ import os
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from testingcode import process_pdf  # Import the process_pdf function
+from pdf_processor import process_pdf  # Import the process_pdf function
 
 class PDFProcessorGUI:
     def __init__(self, root):

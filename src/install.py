@@ -10,8 +10,6 @@ packages = [
     'PyMuPDF',
     'pytesseract',
     'Pillow',
-    'transformers',
-    'torch',
     'setuptools'  # Adding setuptools which includes pkg_resources
 ]
 
