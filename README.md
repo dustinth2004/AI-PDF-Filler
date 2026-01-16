@@ -1,112 +1,131 @@
 # AI PDF Filler
 
-AI PDF Filler is a Python application that automatically fills out PDF forms using AI-powered text generation. It detects empty fields in PDF documents and fills them with contextually appropriate responses based on provided information.
+**Automate your form filling with AI.**
 
-## Features
+AI PDF Filler takes the grunt work out of filling PDFs. It intelligently detects empty fields and Q&A sections in your documents and fills them out using context you provide, powered by the Ollama AI engine.
 
-- GUI interface for easy file selection and processing
-- Automated detection of empty form fields
-- AI-powered text generation for filling out forms
-- Support for handling multiple-cell inputs
-- Question and Answer section processing
-- PDF to image conversion for processing
-- Converts processed images back to PDF format
+## Section A: Introduction
 
-## Prerequisites
+### Features
+*   **Automatic Field Detection**: Uses computer vision to find empty boxes and lines.
+*   **Smart Q&A Processing**: Identifies "Q." and "A." sections and generates concise answers.
+*   **Context-Aware**: Fills forms based on a simple text file you provide.
+*   **Privacy-First**: Runs locally with Ollama (or connects to your private instance).
+*   **GUI Included**: Easy-to-use interface for selecting files and monitoring progress.
+*   **Multi-Platform**: Works on Windows, macOS, and Linux.
 
-Before running the application, ensure you have:
+### Requirements
+*   **Python 3.8+**
+*   **Tesseract OCR**: The "eyes" of the operation.
+*   **Ollama**: The "brain" of the operation (Running Llama 3.2 or similar).
 
-1. Python 3.7 or higher installed
-2. Tesseract OCR installed on your system
+---
 
-### Installing Tesseract OCR
+## Section B: Install and Run (Main OS)
 
-#### Windows
-1. Download the installer from the [UB-Mannheim Tesseract page](https://github.com/UB-Mannheim/tesseract/wiki)
-2. Run the installer
-3. Add the Tesseract installation directory to your system PATH
-4. Update the Tesseract path in `testingcode.py`:
-```python
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-```
+Follow these steps to get up and running on your main machine.
 
-#### macOS
-```bash
-brew install tesseract
-```
+### 1. Install External Dependencies
 
-#### Linux
-```bash
-sudo apt-get install tesseract-ocr
-```
+**Tesseract OCR** must be installed on your system.
+*   **Windows**: [Download Installer](https://github.com/UB-Mannheim/tesseract/wiki) (Add to PATH during install!)
+*   **macOS**: `brew install tesseract`
+*   **Linux**: `sudo apt-get install tesseract-ocr`
 
-## Installation
+**Ollama** must be installed and running.
+1.  Download from [ollama.com](https://ollama.com).
+2.  Run `ollama run llama3.2` in your terminal to pull the model and start the server.
 
-1. Clone the repository:
+### 2. Install the Application
+
+Clone this repository and install the Python requirements.
+
 ```bash
 git clone https://github.com/yourusername/ai-pdf-filler.git
 cd ai-pdf-filler
+python src/install.py
 ```
 
-2. Run the installation script to install required Python packages:
+### 3. Run It
+
+Launch the Graphical User Interface:
+
 ```bash
-python install.py
+python src/gui.py
 ```
 
-This will install the following dependencies:
-- opencv-python
-- numpy
-- PyMuPDF
-- pytesseract
-- Pillow
-- transformers
-- torch
-- setuptools
+---
 
-## Usage
+## Section B2: Alternative Configuration (Secondary OS / Remote AI)
 
-1. Run the GUI application:
-```bash
-python gui.py
-```
+You can run the lightweight GUI on one machine (e.g., a laptop or Raspberry Pi) and have the heavy AI lifting done on a powerful server on your network.
 
-2. Using the GUI:
-   - Select your input PDF file
-   - Choose the context text file containing relevant information
-   - Select an output directory for the processed files
-   - Click "Start Processing" to begin
+### Steps to Configure Remote Ollama:
 
-## Project Structure
+1.  **On the Server (The "Brain"):**
+    *   Ensure Ollama is running and accepting connections.
+    *   Start Ollama with `OLLAMA_HOST=0.0.0.0 ollama serve` to allow network connections.
 
-- `gui.py` - Main GUI application
-- `testingcode.py` - Core processing logic
-- `install.py` - Package installation script
+2.  **On the Client (The GUI):**
+    *   Set the `OLLAMA_HOST` environment variable to your server's IP address before running the GUI.
 
-## How It Works
+    **Linux/Mac:**
+    ```bash
+    export OLLAMA_HOST=192.168.1.100  # Replace with your server IP
+    python src/gui.py
+    ```
 
-1. The application converts PDF pages to high-resolution images
-2. It detects empty form fields using image processing techniques
-3. For each empty field:
-   - Identifies the field name
-   - Generates appropriate text using AI
-   - Fills the field with the generated text
-4. Processes Q&A sections similarly
-5. Converts the processed images back to PDF format
+    **Windows (PowerShell):**
+    ```powershell
+    $env:OLLAMA_HOST="192.168.1.100"
+    python src/gui.py
+    ```
 
-## Requirements
+---
 
-See `install.py` for a complete list of Python package requirements.
+## Section C: Crash Course
 
-## Contributing
+Here is how to use the tool once it's open:
 
-1. Fork the repository
-2. Create a new branch for your feature
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+1.  **Select PDF File**: Click "Browse" and pick the form you need to fill.
+2.  **Select Context File**: Pick a `.txt` file that contains the data to use.
+    *   *Tip*: The context file can be free-form text. e.g., "Name: John Doe, DOB: 01/01/1980, Address: 123 Main St..."
+3.  **Select Output Directory**: Choose where to save the filled PDF.
+4.  **Start Processing**: Click the big green button.
+5.  **Wait**: The bar will fill up as it reads and writes each page.
+6.  **Done**: Check your output folder for `marked_page_X.pdf`.
 
-## Acknowledgments
+---
 
-- Tesseract OCR for text recognition
-- OpenCV for image processing
-- PyMuPDF for PDF handling
+## Section D: Uh oh, I wrecked it... Now what?
+
+**"Tesseract Not Found" Error**
+*   Make sure Tesseract is installed.
+*   On Windows, ensure you added it to your System PATH during installation.
+*   If it's installed in a weird spot, you can set the path in your environment variables.
+
+**"Connection Refused" (Ollama)**
+*   Is Ollama running? Type `ollama list` in a terminal.
+*   If running remotely, check your firewall and IP address.
+
+**"The AI wrote nonsense"**
+*   Check your **Context File**. Garbage in, garbage out. Make sure the info is clear.
+*   Try a different model. The code defaults to `llama3.2`, but you can edit `src/pdf_processor.py` to change the model name if you have `mistral` or `llama2` preferred.
+
+**"It didn't find the box"**
+*   The PDF might be too blurry.
+*   The tool looks for boxes with specific dimensions. If your form has tiny checkboxes or huge text areas, they might be missed.
+
+---
+
+## Section E: Suggestions?
+
+Found a bug? Have a cool feature idea?
+
+1.  **Fork** the repo.
+2.  **Create a branch** (`git checkout -b feature/AmazingIdea`).
+3.  **Commit** your changes.
+4.  **Push** to the branch.
+5.  **Open a Pull Request**.
+
+We love feedback! Happy filling.
